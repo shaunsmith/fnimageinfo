@@ -18,8 +18,11 @@ function extractDimensions(buffer, ctx) {
           if (err) throw err;
           im.identify(['-format', '{"file": "' + part.filename + '", ' + '"width": %w, "height": %h}', tmpFile],
             (err, output) => {
-              if (err) throw err;
-              resolve(JSON.parse(output));
+              if (err) {
+                reject(err);
+              } else {
+                resolve(JSON.parse(output));
+              }
             }
           );
         });
@@ -31,7 +34,8 @@ function extractDimensions(buffer, ctx) {
 function getMultiPartBoundrySeparator(ctx) {
   let contentType = ctx.getHeader("Content-Type");
   if (contentType) {
-    let boundaryStart = contentType.indexOf("boundary=") + "boundary=".length;
+    const boundryProperty = "boundary=";
+    let boundaryStart = contentType.indexOf(boundryProperty) + boundryProperty.length;
     if (boundaryStart > -1) {
       return contentType.substring(boundaryStart, contentType.length);
     }
